@@ -4,7 +4,7 @@ import { Card, Form, Input, Button, Tabs, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, DatabaseOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function Login() {
   const navigate = useNavigate();
