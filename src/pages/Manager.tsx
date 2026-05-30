@@ -79,15 +79,24 @@ export default function Manager() {
   };
 
   const handleRename = async (oldName: string) => {
-    if (!newFileName.trim() || newFileName === oldName) {
+    const trimmedName = newFileName.trim();
+    if (!trimmedName) {
       setEditingFile(null);
       return;
     }
+    
+    const newFullName = trimmedName.endsWith('.jar') ? trimmedName : `${trimmedName}.jar`;
+    if (newFullName === oldName) {
+      setEditingFile(null);
+      return;
+    }
+
     const res = await fetchWithAuth(`/modpacks/${id}/mods/${oldName}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ new_name: newFileName })
+      body: JSON.stringify({ new_name: newFullName })
     });
+    
     if (res.ok) {
       message.success('重命名成功');
       setEditingFile(null);
@@ -95,7 +104,7 @@ export default function Manager() {
     } else {
       message.error('重命名失败');
     }
-  };
+  }
 
   const handlePublish = async () => {
     setIsPublishing(true);
@@ -150,13 +159,18 @@ export default function Manager() {
             locale={{ emptyText: '暂无上传的模组' }}
             renderItem={item => {
               const isEditing = editingFile === item.name;
+              const nameWithoutExt = item.name.replace(/\.jar$/i, '');
+              
               return (
                 <List.Item
                   actions={isEditing ? [
                     <Button type="text" icon={<SaveOutlined />} onClick={() => handleRename(item.name)} style={{ color: '#52c41a' }} />,
                     <Button type="text" icon={<CloseOutlined />} onClick={() => setEditingFile(null)} />
                   ] : [
-                    <Button type="text" icon={<EditOutlined />} onClick={() => { setEditingFile(item.name); setNewFileName(item.name); }} />,
+                    <Button type="text" icon={<EditOutlined />} onClick={() => { 
+                      setEditingFile(item.name); 
+                      setNewFileName(nameWithoutExt);
+                    }} />,
                     <Popconfirm title="确定要删除这个模组吗？" onConfirm={() => handleDelete(item.name)} okText="确定" cancelText="取消">
                       <Button danger type="text" icon={<DeleteOutlined />} />
                     </Popconfirm>
@@ -168,6 +182,7 @@ export default function Manager() {
                         value={newFileName} 
                         onChange={e => setNewFileName(e.target.value)} 
                         onPressEnter={() => handleRename(item.name)}
+                        addonAfter=".jar"
                         style={{ width: 400 }}
                         autoFocus
                       />
