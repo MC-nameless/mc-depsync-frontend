@@ -51,7 +51,7 @@ export default function Manager() {
         const data = await res.json();
         onSuccess("ok");
         if (data.status === 'skipped') {
-          message.info(`[极速秒传】${file.name} 已存在相同的模组文件`);
+          message.info(`[秒传]${file.name} 已存在相同的模组文件`);
         } else {
           message.success(`${file.name} 上传成功`);
         }
